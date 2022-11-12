@@ -4,7 +4,7 @@ DATABASES = {
         'NAME': 'test',
         'USER': 'test',
         'PASSWORD': 'test',
-        'HOST': 'postgresql',
+        'HOST': 'localhost',
         'PORT': 5432
     }
 }

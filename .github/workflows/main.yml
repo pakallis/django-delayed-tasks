@@ -28,9 +28,11 @@ jobs:
               image: redis
               ports:
                   - 6379:6379
-              env:
-                  REDIS_HOST: redis
-                  REDIS_PORT: 6379
+              options: >-
+                  --health-cmd "redis-cli ping"
+                  --health-interval 10s
+                  --health-timeout 5s
+                  --health-retries 5
           rabbitmq:
               image: rabbitmq
               ports:
@@ -51,19 +53,6 @@ jobs:
               virtualenvs-in-project: true
               installer-parallel: true
               
-          - name: Load cached venv
-            id: cached-poetry-dependencies
-            uses: actions/cache@v3
-            with:
-              path: .venv
-              key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
-          - run: poetry install --no-interaction --no-root
-            if: steps.cache-deps.outputs.cache-hit != 'true'
-
           - run: poetry install --no-interaction
           - name: Run tests
-            run: |
-              source .venv/bin/activate
-              pytest tests/
-              coverage report
+            run: DJANGO_SETTINGS_MODULE=tests.settings poetry run django-admin migrate && poetry run pytest -vvv tests
