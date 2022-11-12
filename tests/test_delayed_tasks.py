@@ -1,12 +1,9 @@
 import datetime
 import time
 
-import pytest
-from celery.exceptions import MaxRetriesExceededError
 from django.core.cache import cache
 from celery import shared_task
 from django.utils import timezone
-from delayed_tasks.models import Task
 from delayed_tasks.tasks import DelayedTask, schedule_persisted_tasks
 
 
