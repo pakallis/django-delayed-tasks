@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  postgresql:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_DB=test
+      - POSTGRES_PASSWORD=test
+      - C_FORCE_ROOT=true
+
+  redis:
+    restart: always
+    image: redis:alpine
+
+  rabbitmq:
+    restart: always
+    image: rabbitmq:3.8-management-alpine
+
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./:/app
+    environment:
+      - DELAYED_TASKS_STORE_TASK_ETA_MINUTES=0
+      - DELAYED_TASKS_SCHEDULE_TASK_INTERVAL_MINUTES=1
+      - DJANGO_SETTINGS_MODULE=tests.settings
+    command: "poetry run pytest -s -vvv tests"
+    depends_on:
+      - rabbitmq
+      - postgresql
+      - redis

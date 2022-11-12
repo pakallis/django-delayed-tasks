@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 class DelayedRequest(Request):
     def __init__(self, *args, **kwargs):
         """Init delayed request
-
         Override Request object to re-schedule tasks that have eta > now + STORE_TASK_ETA_MINUTES.
         The re-scheduled tasks are discarded from the celery worker and are persisted in the database so that they
         can be picked and re-scheduled later by `run_persisted_tasks`.
@@ -56,7 +55,7 @@ class DelayedRequest(Request):
 
         eta = self.eta
 
-        sig = self.task.si(*self.args, **self.kwargs).set(eta=eta.isoformat())
+        sig = self.task.si(*self.args, **self.kwargs).set(eta=eta.isoformat(), retries=self.request_dict['retries'])
 
         t = Task(
             signature=sig,
