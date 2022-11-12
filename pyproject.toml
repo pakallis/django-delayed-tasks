@@ -6,10 +6,10 @@ authors = ["Pavlos Kallis <pakallis@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4"
-Django = ">=3.1"
 celery = ">=3.6"
 redis = "^4.3.4"
 psycopg2-binary = "^2.9.5"
+django = "^4.1.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
