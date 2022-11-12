@@ -25,11 +25,8 @@ def a_test_task(self):
 def test_a(celery_app, celery_worker):
     a_test_task.s().apply_async()
     time.sleep(1)
-    # assert Task.objects.count() > 0
-    # t = Task.objects.first()
     schedule_persisted_tasks()
     time.sleep(1)
     schedule_persisted_tasks()
     time.sleep(1)
-    # assert Task.objects.count() == 0
     assert cache.get(key) == 5

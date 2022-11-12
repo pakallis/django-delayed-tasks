@@ -6,15 +6,15 @@ from django.conf import settings
 from django.core.signals import setting_changed
 
 
-DATABASES={
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ':memory:'
     }
 }
-SITE_ID=1
-SECRET_KEY='not very secret in tests'
-USE_I18N=True
+SITE_ID = 1
+SECRET_KEY = 'not very secret in tests'
+USE_I18N = True
 
 DEFAULTS = {
     'STORE_TASK_ETA_MINUTES': 0,
