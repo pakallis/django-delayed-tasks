@@ -22,6 +22,18 @@ def pytest_configure(config):
     # USE_L10N is deprecated, and will be removed in Django 5.0.
     use_l10n = {"USE_L10N": True} if django.VERSION < (4, 0) else {}
     settings.configure(
+        LOGGING={
+            'version': 1,
+            'handlers': {
+                'console': {
+                    'class': 'logging.StreamHandler'
+                }
+            },
+            'root': {
+                'handlers': ['console'],
+                'level': 'DEBUG'
+            }
+        },
         CACHES={
             'default': {
                 'BACKEND': 'django.core.cache.backends.redis.RedisCache',

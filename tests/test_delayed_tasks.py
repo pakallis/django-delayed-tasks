@@ -22,6 +22,10 @@ def a_test_task(self):
     )
 
 
+# TODO: Add the following test. db -> mq -> db
+# TODO: Add the following test. db -> db -> mq
+# TODO: Ability to override settings
+
 def test_a(celery_app, celery_worker):
     a_test_task.s().apply_async()
     time.sleep(1)
