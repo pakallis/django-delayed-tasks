@@ -24,6 +24,7 @@ class DelayedRequest(Request):
         The re-scheduled tasks are discarded from the celery worker and are persisted in the database so that they
         can be picked and re-scheduled later by `run_persisted_tasks`.
         """
+        print('Request#init', kwargs)
         logger.info('DelayedRequest#init: %s', kwargs)
         expires_set = False
         try:
@@ -62,6 +63,7 @@ class DelayedRequest(Request):
             eta=eta
         )
         t.save()
+        print('Saving task', eta, t.id)
         logger.info('Task saved to db id: %s, db_id: %s - name: %s - eta: %s', self.task_id, t.id, self.task_name, eta)
 
     def _eta_from_kwargs(self, kwargs) -> datetime.datetime:
@@ -131,6 +133,7 @@ def schedule_persisted_tasks():
         sig = celery.signature(signature_dict)
         task_id = task['id']
         try:
+            print('scheduling: ', sig.__json__())
             logger.info('Scheduling task: %s', sig.__json__())
             sig.apply_async()
             # Task successfully scheduled, remove it from DB

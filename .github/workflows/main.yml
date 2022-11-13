@@ -11,6 +11,7 @@ on:
 jobs:
   test:
       runs-on: ubuntu-latest
+      container: python:3.8
       strategy:
           fail-fast: false
           matrix:
@@ -18,16 +19,17 @@ jobs:
       services:
           postgresql:
               image: postgres
-              ports:
-                  - 5432:5432
+              options: >-
+                --health-cmd pg_isready
+                --health-interval 10s
+                --health-timeout 5s
+                --health-retries 5
               env:
                   POSTGRES_USER: test
                   POSTGRES_DB: test
                   POSTGRES_PASSWORD: test
           redis:
               image: redis
-              ports:
-                  - 6379:6379
               options: >-
                   --health-cmd "redis-cli ping"
                   --health-interval 10s
@@ -35,8 +37,6 @@ jobs:
                   --health-retries 5
           rabbitmq:
               image: rabbitmq
-              ports:
-                  - 5672:5672
               env:
                   RABBITMQ_DEFAULT_USER: guest
                   RABBITMQ_DEFAULT_PASS: guest
@@ -55,4 +55,4 @@ jobs:
               
           - run: poetry install --no-interaction
           - name: Run tests
-            run: DJANGO_SETTINGS_MODULE=tests.settings poetry run django-admin migrate && poetry run pytest -vvv tests
+            run: DJANGO_SETTINGS_MODULE=tests.settings poetry run django-admin migrate && poetry run pytest -s -vvv tests
