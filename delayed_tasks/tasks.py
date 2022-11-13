@@ -8,10 +8,10 @@ import celery
 import celery.exceptions
 from celery.utils.time import maybe_iso8601, maybe_make_aware
 from celery.worker.request import Request
+from django.conf import settings
 from django.utils import timezone
 
 from delayed_tasks.models import Task
-from delayed_tasks.settings import app_settings
 
 
 logger = logging.getLogger(__name__)
@@ -105,7 +105,7 @@ class DelayedRequest(Request):
         if eta is None:
             return False
 
-        if eta < now + datetime.timedelta(minutes=int(app_settings.STORE_TASK_ETA_MINUTES)):
+        if eta < now + datetime.timedelta(minutes=int(settings.DELAYED_TASKS_STORE_TASK_ETA_MINUTES)):
             return False
 
         kwargs['headers']['expires'] = timezone.now() - datetime.timedelta(seconds=100)
@@ -126,7 +126,7 @@ def schedule_persisted_tasks():
     The scheduled tasks will be added to the RabbitMQ queue and will be fetched by a Celery worker that will wait for
     the ETA to expire to run this task. If the task is scheduled successfully, we remove it from the database.
     """
-    max_eta = timezone.now() + datetime.timedelta(minutes=int(app_settings.SCHEDULE_TASK_AHEAD_ETA_MINUTES))
+    max_eta = timezone.now() + datetime.timedelta(minutes=int(settings.DELAYED_TASKS_SCHEDULE_TASK_AHEAD_ETA_MINUTES))
     tasks_to_delete = set()
     for task in Task.objects.filter(eta__lte=max_eta).values():
         signature_dict = task['signature']
@@ -135,14 +135,15 @@ def schedule_persisted_tasks():
         try:
             print('scheduling: ', sig.__json__())
             logger.info('Scheduling task: %s', sig.__json__())
-            sig.apply_async()
+            options = signature_dict['options']
+            # TODO: Check if eta and retries are not needed
+            sig.apply_async(eta=options['eta'])
             # Task successfully scheduled, remove it from DB
             tasks_to_delete.add(task_id)
-        except celery.exceptions.NotRegistered:
+        except celery.exceptions.NotRegistered as e:
             # If the task is not registered (usually it does not exist anymore), then remove it from the
             # database to avoid running it again and again.
             tasks_to_delete.add(task_id)
-        except Exception as e:  # Skip to the next task instead of raising
             logger.exception(e)
 
     Task.objects.filter(pk__in=tasks_to_delete).delete()
@@ -152,7 +153,7 @@ def setup_periodic_task(celery_app, **kwargs):
     """Setup periodic task"""
     logger.info('Adding periodic task: %s - %s', celery_app, schedule_persisted_tasks)
     celery_app.add_periodic_task(
-        datetime.timedelta(minutes=int(app_settings.SCHEDULE_TASKS_INTERVAL_MINUTES)),
+        datetime.timedelta(minutes=int(settings.DELAYED_TASKS_SCHEDULE_TASKS_INTERVAL_MINUTES)),
         schedule_persisted_tasks.s(),
         name='schedule_persisted_tasks'
     )

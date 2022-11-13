@@ -22,6 +22,9 @@ def pytest_configure(config):
     # USE_L10N is deprecated, and will be removed in Django 5.0.
     use_l10n = {"USE_L10N": True} if django.VERSION < (4, 0) else {}
     settings.configure(
+        DELAYED_TASKS_STORE_TASK_ETA_MINUTES = 60,
+        DELAYED_TASKS_SCHEDULE_TASK_AHEAD_ETA_MINUTES = 10,
+        DELAYED_TASKS_SCHEDULE_TASKS_INTERVAL_MINUTES = 2,
         LOGGING={
             'version': 1,
             'handlers': {
@@ -61,3 +64,6 @@ def pytest_configure(config):
     )
 
     django.setup()
+
+    from delayed_tasks.models import Task
+    Task.objects.all().delete()
