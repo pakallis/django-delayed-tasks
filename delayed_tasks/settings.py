@@ -1,6 +1,7 @@
 # coding=utf-8
 """delayed_tasks settings"""
 import logging
+import os
 
 from django.conf import settings
 from django.core.signals import setting_changed
@@ -17,9 +18,9 @@ SECRET_KEY = 'not very secret in tests'
 USE_I18N = True
 
 DEFAULTS = {
-    'STORE_TASK_ETA_MINUTES': 60,
-    'SCHEDULE_TASK_AHEAD_ETA_MINUTES': 10,
-    'SCHEDULE_TASKS_INTERVAL_MINUTES': 2
+    'STORE_TASK_ETA_MINUTES': int(os.getenv('STORE_TASK_ETA_MINUTES', 60)),
+    'SCHEDULE_TASK_AHEAD_ETA_MINUTES': int(os.getenv('SCHEDULE_TASK_AHEAD_ETA_MINUTES', 10)),
+    'SCHEDULE_TASKS_INTERVAL_MINUTES': int(os.getenv('SCHEDULE_TASKS_INTERVAL_MINUTES', 2))
 }
 
 logger = logging.getLogger()
