@@ -10,8 +10,6 @@ class DelayedTasksConfig(AppConfig):
     verbose_name = "Delayed Tasks"
 
     def ready(self):
-        # Register all hooks and setup periodic task
-        from delayed_tasks import receivers  # noqa: F401
         from delayed_tasks import tasks  # noqa: F401
 
         tasks.setup_periodic_task(celery.current_app)
