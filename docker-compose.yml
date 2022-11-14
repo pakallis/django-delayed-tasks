@@ -26,7 +26,7 @@ services:
       - ./:/app
     environment:
       - DELAYED_TASKS_STORE_TASK_ETA_MINUTES=0
-      - DELAYED_TASKS_SCHEDULE_TASK_INTERVAL_MINUTES=1
+      - DELAYED_TASKS_SCHEDULE_TASK_INTERVAL_MINUTES=10
       - DJANGO_SETTINGS_MODULE=tests.settings
     command: "poetry run pytest -s -vvv tests"
     depends_on:
