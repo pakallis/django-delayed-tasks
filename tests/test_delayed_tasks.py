@@ -23,6 +23,7 @@ def retry_task(self, key, seconds, max_retries):
 def simple_task(self, key):
     cache.incr(key)
 
+
 def cleanup(app):
     Task.objects.all().delete()
     # remove pending tasks
@@ -34,26 +35,26 @@ def cleanup(app):
     for hostname in jobs:
         tasks = jobs[hostname]
         for task in tasks:
-            app.control.revoke(task['request']['id'], terminate=True)
+            app.control.revoke(task["request"]["id"], terminate=True)
 
     # remove reserved tasks
     jobs = i.reserved()
     for hostname in jobs:
         tasks = jobs[hostname]
         for task in tasks:
-            app.control.revoke(task['request']['id'], terminate=True)
+            app.control.revoke(task["request"]["id"], terminate=True)
 
     # remove scheduled tasks
     jobs = i.scheduled()
     for hostname in jobs:
         tasks = jobs[hostname]
         for task in tasks:
-            app.control.revoke(task['request']['id'], terminate=True)
+            app.control.revoke(task["request"]["id"], terminate=True)
 
     count = 0
     while len(list(i.scheduled().values())[0]) > 0:
         if count > 10:
-            raise Exception('Could not cleanup')
+            raise Exception("Could not cleanup")
         count += 1
 
 
@@ -61,18 +62,18 @@ def test_simple_task(celery_app, celery_worker):
     cleanup(celery_app)
     # --------------------------
     # simple_task without eta
-    key = 'simple_task'
+    key = "simple_task"
     cache.set(key, 0)
     with override_settings(DELAYED_TASKS_STORE_TASK_ETA_MINUTES=0):
         res = simple_task.s(key).apply_async()
         res.wait(timeout=10)
-    assert res.status == 'SUCCESS'
+    assert res.status == "SUCCESS"
     assert cache.get(key) == 1
     assert Task.objects.count() == 0
 
     # --------------------------
     # simple_task with eta
-    key = 'simple_task_eta'
+    key = "simple_task_eta"
     cache.set(key, 0)
     task_eta_seconds = 4
     now = timezone.now()
@@ -82,7 +83,7 @@ def test_simple_task(celery_app, celery_worker):
         with pytest.raises(TaskRevokedError):
             res.wait(timeout=10)
     # Should appear as revoked because we revoked the current and re-schedule another task
-    assert res.status == 'REVOKED'
+    assert res.status == "REVOKED"
     assert cache.get(key) == 0
     assert Task.objects.count() == 1
 
@@ -100,10 +101,9 @@ def test_simple_task(celery_app, celery_worker):
     assert Task.objects.count() == 0
     i = celery_app.control.inspect()
     scheduled_task = list(i.scheduled().values())[0][0]
-    assert scheduled_task['eta'] == eta.isoformat()
-    assert scheduled_task['request']['name'] == 'tests.test_delayed_tasks.simple_task'
-    assert scheduled_task['request']['args'] == ['simple_task_eta']
-
+    assert scheduled_task["eta"] == eta.isoformat()
+    assert scheduled_task["request"]["name"] == "tests.test_delayed_tasks.simple_task"
+    assert scheduled_task["request"]["args"] == ["simple_task_eta"]
 
     # Wait some time for ETA to expire and task to be executed
     time.sleep(task_eta_seconds + 1)
@@ -112,7 +112,7 @@ def test_simple_task(celery_app, celery_worker):
 
     # --------------------------
     # retry_task
-    key = 'retry_task'
+    key = "retry_task"
     cache.set(key, 0)
     retry_in_seconds = 4
     max_retries = 4
@@ -134,7 +134,10 @@ def test_simple_task(celery_app, celery_worker):
     # Task should be scheduled to run on eta and not exist on DB
     assert Task.objects.count() == 0
     scheduled_task = list(i.scheduled().values())[0][0]
-    assert scheduled_task['eta'] <= (timezone.now() + datetime.timedelta(seconds=retry_in_seconds)).isoformat()
+    assert (
+        scheduled_task["eta"]
+        <= (timezone.now() + datetime.timedelta(seconds=retry_in_seconds)).isoformat()
+    )
     assert cache.get(key) == 1
     # Wait for task to run and be retried
     time.sleep(retry_in_seconds + 0.5)
@@ -150,7 +153,7 @@ def test_simple_task(celery_app, celery_worker):
     # Max retries exceeded
     max_retries = 2
     retry_in_seconds = 1
-    key = 'retry_task_max_retries'
+    key = "retry_task_max_retries"
     cache.set(key, 0)
     with override_settings(DELAYED_TASKS_STORE_TASK_ETA_MINUTES=0):
         res = retry_task.s(key, retry_in_seconds, max_retries).apply_async(
