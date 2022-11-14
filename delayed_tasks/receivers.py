@@ -35,7 +35,6 @@ def log_task_retried(*args, **kwargs):
     """Log task params when a task is retried"""
     try:
         request = kwargs["request"]
-        print("Task retried", request, request.eta)
         if (eta := request.eta) is not None:
             logger.info("Task retried: %s - %s", request, eta)
     except Exception as e:
