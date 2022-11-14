@@ -54,11 +54,11 @@ def cleanup(app):
     count = 0
     while len(list(i.scheduled().values())[0]) > 0:
         if count > 10:
-            raise Exception("Could not cleanup")
+            raise Exception("Max retries exceeded while trying to cleanup celery tasks")
         count += 1
 
 
-def test_simple_task(celery_app, celery_worker):
+def test_integration(celery_app, celery_worker):
     cleanup(celery_app)
     # --------------------------
     # simple_task without eta

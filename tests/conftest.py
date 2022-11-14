@@ -55,7 +55,3 @@ def pytest_configure(config):
     )
 
     django.setup()
-
-    from delayed_tasks.models import Task
-
-    Task.objects.all().delete()
