@@ -1,8 +1,6 @@
 import django
 import pytest
 
-pytest_plugins = ("celery.contrib.pytest",)
-
 
 @pytest.fixture(scope="session")
 def celery_config():
