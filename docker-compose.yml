@@ -18,7 +18,7 @@ services:
     restart: always
     image: rabbitmq:3.8-management-alpine
 
-  app:
+  tests:
     build:
       context: .
       dockerfile: ./Dockerfile
