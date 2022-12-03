@@ -1,5 +1,10 @@
 import django
+import os
 import pytest
+
+
+TEST_BROKER = os.getenv("TEST_BROKER")
+TEST_DB_HOST = os.getenv("TEST_DB_HOST")
 
 
 @pytest.fixture(scope="session")
@@ -7,7 +12,7 @@ def celery_config():
     return {
         "broker_connection_timeout": 10000,
         "worker_lost_wait": 100000,
-        "broker_url": "amqp://guest:guest@rabbitmq:5672",
+        "broker_url": TEST_BROKER,
     }
 
 
@@ -37,7 +42,7 @@ def pytest_configure(config):
                 "NAME": "test",
                 "USER": "test",
                 "PASSWORD": "test",
-                "HOST": "postgresql",
+                "HOST": TEST_DB_HOST,
                 "PORT": 5432,
             }
         },
