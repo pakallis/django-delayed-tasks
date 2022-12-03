@@ -18,7 +18,7 @@ services:
     restart: always
     image: rabbitmq:3.8-management-alpine
 
-  app:
+  tests:
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -28,6 +28,8 @@ services:
       - DELAYED_TASKS_STORE_TASK_ETA_MINUTES=0
       - DELAYED_TASKS_SCHEDULE_TASK_INTERVAL_MINUTES=10
       - DJANGO_SETTINGS_MODULE=tests.settings
+      - TEST_DB_HOST=postgresql
+      - TEST_BROKER=amqp://rabbit:5672
     command: "poetry run pytest -s -vvv tests"
     depends_on:
       - rabbitmq

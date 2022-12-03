@@ -145,7 +145,7 @@ def schedule_persisted_tasks():
             logger.info("Scheduling task: %s", sig.__json__())
             options = signature_dict["options"]
             # TODO: Check if eta and retries are not needed
-            sig.apply_async(eta=options["eta"])
+            sig.apply_async(eta=options["eta"], retries=options["retries"])
             # Task successfully scheduled, remove it from DB
             tasks_to_delete.add(task_id)
         except celery.exceptions.NotRegistered as e:

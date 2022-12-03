@@ -7,17 +7,18 @@ authors = ["Pavlos Kallis <pakallis@gmail.com>"]
 [tool.poetry.dependencies]
 python = ">=3.8,<4"
 celery = ">=3.6"
-redis = "^4.3.4"
 psycopg2-binary = "^2.9.5"
 django = "^4.1.3"
 
-[tool.poetry.dev-dependencies]
-pytest = "*"
-pytest-mock = "^3.10.0"
-flake8 = "^5.0.4"
-
 [tool.poetry.group.dev.dependencies]
+redis = "^4.3.4"
+flake8 = "^5.0.4"
 black = "^22.10.0"
+tox = "^3.27.1"
+pytest = "^7.2.0"
+pytest-mock = "^3.10.0"
+pytest-cov = "^4.0.0"
+pytest-celery = "^0.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

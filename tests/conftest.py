@@ -1,7 +1,10 @@
 import django
+import os
 import pytest
 
-pytest_plugins = ("celery.contrib.pytest",)
+
+TEST_BROKER = os.getenv("TEST_BROKER")
+TEST_DB_HOST = os.getenv("TEST_DB_HOST")
 
 
 @pytest.fixture(scope="session")
@@ -9,10 +12,7 @@ def celery_config():
     return {
         "broker_connection_timeout": 10000,
         "worker_lost_wait": 100000,
-        "redis_socket_timeout": 100000,
-        "result_backend_transport_options": {"visibility_timeout": 18000},
-        "broker_url": "amqp://guest:guest@rabbitmq:5672",
-        "result_backend": "redis://redis:6379/0",
+        "broker_url": TEST_BROKER,
     }
 
 
@@ -32,8 +32,8 @@ def pytest_configure(config):
         },
         CACHES={
             "default": {
-                "BACKEND": "django.core.cache.backends.redis.RedisCache",
-                "LOCATION": "redis://redis:6379",
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+                "LOCATION": "mycache",
             }
         },
         DATABASES={
@@ -42,7 +42,7 @@ def pytest_configure(config):
                 "NAME": "test",
                 "USER": "test",
                 "PASSWORD": "test",
-                "HOST": "postgresql",
+                "HOST": TEST_DB_HOST,
                 "PORT": 5432,
             }
         },

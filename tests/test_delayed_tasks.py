@@ -4,7 +4,7 @@ import time
 from django.core.cache import cache
 from django.test import override_settings
 from celery import shared_task
-from celery.exceptions import MaxRetriesExceededError, TaskRevokedError
+from celery.exceptions import TaskRevokedError
 from django.utils import timezone
 import pytest
 
