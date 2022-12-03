@@ -11,7 +11,7 @@ on:
 jobs:
   test:
       runs-on: ubuntu-latest
-      container: python:3.8
+      container: python${{matrix.python-version}}
       strategy:
           fail-fast: false
           matrix:
